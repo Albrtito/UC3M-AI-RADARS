@@ -80,7 +80,6 @@ class Map:
         )
         return distance
 
-
     def compute_possibilities_map(self) -> tuple[np.ndarray, np.float32, np.float32]:
         """
         Computes the possibility map for each defined point, also gives out the min and max possibilities in that map to ease later computations
@@ -96,14 +95,16 @@ class Map:
                     min = possibility_map[i, j]
                     max = possibility_map[i, j]
                     set_min_max = 1
-                # Obtain the cells latitude and longitude
+                # Obtain the cell latitude and longitude
                 lat = self.boundaries.min_lat + (
                     (self.boundaries.max_lat - self.boundaries.min_lat)
-                    / self.height
+                    / (self.height - 1)
                     * i
                 )
                 lon = self.boundaries.min_lon + (
-                    (self.boundaries.max_lon - self.boundaries.min_lon) / self.width * j
+                    (self.boundaries.max_lon - self.boundaries.min_lon)
+                    / (self.width - 1)
+                    * j
                 )
                 for r in self.radars:
                     detection_possibility = r.compute_detection_level(lat, lon)

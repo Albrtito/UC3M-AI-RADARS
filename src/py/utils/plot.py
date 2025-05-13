@@ -6,7 +6,7 @@ from Boundaries import Boundaries
 import matplotlib.pyplot as plt
 import numpy as np
 
-def plot_radar_locations(boundaries: Boundaries, radar_locations: np.array) -> None:
+def plot_radar_locations(boundaries: Boundaries, radar_locations: np.ndarray) -> None:
     """Auxiliary function for plotting the radar locations"""
     plt.figure(figsize=(8, 8))
     plt.title("Radar locations in the map")
@@ -38,12 +38,12 @@ def plot_radar_locations(boundaries: Boundaries, radar_locations: np.array) -> N
     return
 
 
-def plot_detection_fields(detection_map: np.array, bicubic: bool = True) -> None:
+def plot_detection_fields(detection_map: np.ndarray, bicubic: bool = True) -> None:
     """Auxiliary function for plotting the detection fields"""
     plt.figure(figsize=(8, 8))
     plt.title("Radar detection fields")
     im = plt.imshow(
-        X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None
+        X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None, origin ="lower"
     )
     plt.colorbar(im, label="Detection values")
     plt.show()
@@ -51,7 +51,7 @@ def plot_detection_fields(detection_map: np.array, bicubic: bool = True) -> None
 
 
 def plot_solution(
-    detection_map: np.array, solution_plan: list, bicubic: bool = True
+    detection_map: np.ndarray, solution_plan: list, bicubic: bool = True
 ) -> None:
     """Auxiliary function for plotting the solution plan with markers in each POI"""
     plt.figure(figsize=(8, 8))
