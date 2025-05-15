@@ -7,6 +7,11 @@ from Map import EPSILON
 # Number of nodes expanded in the heuristic search (stored in a global variable to be updated from the heuristic functions)
 NODES_EXPANDED = 0
 
+# Creation of the class State: 
+
+class State:
+
+
 def h1(current_node, objective_node) -> np.float32:
     """ First heuristic to implement """
     global NODES_EXPANDED
@@ -47,11 +52,9 @@ def path_finding(G: nx.DiGraph,
     """ Implementation of the main searching / path finding algorithm """
 
     # Initialize function variables
-    open = [initialState]
+    open = [initial_location_index]
     closed = []
     goal = False
-    expandedNodes = 0
-    currentState:State = open[0]
     initialHeuristic = currentState.heuristicCost
     
     while len(open) > 0:
@@ -69,10 +72,6 @@ def path_finding(G: nx.DiGraph,
 
         closed.append(currentState)
         
-        if (MAXEXPANSION and expandedNodes >= MAXEXPANSION) \
-            or (MAXTIME and time.time()-initialTime >= MAXTIME):
-            break
-
 
         successors = currentState.expand_state()
         open = sorted(open + successors, key=lambda x: x.totalCost)

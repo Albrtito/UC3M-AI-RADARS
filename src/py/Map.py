@@ -21,7 +21,7 @@ class Map:
         boundaries: Boundaries,
         height: np.int32,
         width: np.int32,
-        radars: np.ndarray = None,
+        radars: np.ndarray|None = None,
     ):
         self.boundaries = boundaries  # Boundaries of the map
         self.height = height  # Number of coordinates in the y-axis

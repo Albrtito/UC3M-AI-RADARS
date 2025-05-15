@@ -43,6 +43,7 @@ def plot_detection_fields(detection_map: np.ndarray, bicubic: bool = True) -> No
     plt.figure(figsize=(8, 8))
     plt.title("Radar detection fields")
     im = plt.imshow(
+        # Added the origin=lower property so that it plots similar to the first graph
         X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None, origin ="lower"
     )
     plt.colorbar(im, label="Detection values")
