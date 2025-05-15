@@ -27,6 +27,9 @@ python3 main.py <scenario> <tolerance>
 * The scenario should have the format `scenario_<number>` with <number> being an integer from 0 to 10
 * The tolerance should be a float that uses a point `.` as decimal separator
 
+## Refactor: 
+The original code remains the same, however the plotting functions have been refeactored into the `src/py/utils` directory, file `plot.py`. A new function print_d was added into that same directory, this function offers a debugging vesrion of printing used during development.
+
 ## Scripts and references: 
 The github repo, not de delivered code, contains a folder with scripts used for creation of the zip file and a referencee folder with the problem statement. Any other scripts or refrendes used during this proyect will be added there. 
 
