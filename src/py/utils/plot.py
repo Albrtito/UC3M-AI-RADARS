@@ -7,7 +7,7 @@ import numpy as np
 from Boundaries import Boundaries
 
 # Variable for toggling on and off the plots, so that during debbugging there is no problem with showing them
-PLOT = False
+PLOT = True
 
 
 def plot_radar_locations(boundaries: Boundaries, radar_locations: np.ndarray) -> None:
@@ -87,5 +87,6 @@ def plot_solution(
     )
     plt.colorbar(im, label="Detection values")
     plt.legend()
-    plt.show()
+    if PLOT:
+        plt.show()
     return

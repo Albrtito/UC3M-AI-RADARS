@@ -6,7 +6,7 @@ import sys
 import numpy as np
 from Boundaries import Boundaries
 from Map import Map
-from SearchEngine import build_graph, compute_path_cost, h1, h2, path_finding
+from SearchEngine import build_graph, compute_path_cost, h1, h2,h3, path_finding
 from utils.plot import *
 
 
@@ -33,7 +33,7 @@ def parse_args() -> dict:
 
 
 # System's main function
-def main() -> None:
+def main() -> None :
 
     # Parse the input parameters (arguments) of the program (current execution)
     execution_parameters = parse_args()
@@ -81,7 +81,7 @@ def main() -> None:
     # Compute the solution
     solution_plan, nodes_expanded = path_finding(
         G=G,
-        heuristic_function=h2,
+        heuristic_function=h1,
         locations=POIs,
         initial_location_index=np.int32(0),
         boundaries=boundaries,
@@ -98,7 +98,9 @@ def main() -> None:
 
     # Plot the solution
     plot_solution(detection_map=detection_map, solution_plan=solution_plan)
-
+    
+    # Return the solution: For testing
+    return 
 
 if __name__ == "__main__":
     main()

@@ -150,7 +150,7 @@ def path_finding(
             print(
                 f"No path found from {current_location} to {location} with the given tolerance"
             )
-            # Exit the program
+            # Exit the program with -1
             exit(-1)
 
         path_len = nx.astar_path_length(
