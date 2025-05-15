@@ -15,23 +15,25 @@ create_zip() {
     rm -f $archivo
 
     # Make new dirs to copy the files into
-    mkdir py 
+    mkdir py
+    mkdir py/utils
     mkdir json
     # python code
-    cp ../src/py/* ./py/
+    cp ../src/py/*.py ./py/
+    cp ../src/py/*.txt ./py/
+    cp ../src/py/utils/*.py ./py/utils/
     # json code
     cp ../src/json/* ./json/
     # readme file
     cp ../src/README.md .
 
-
-    # Create the zip file with all necessary files 
-    zip $archivo py/* json/* README.md "$nombre".pdf
+    # Create the zip file with all necessary files
+    zip -r $archivo py/ json/ README.md "$nombre".pdf
 
     # Clean up temporary files
     rm -rf py
     rm -rf json
-    rm README.md 
+    rm README.md
 }
 
 create_zip

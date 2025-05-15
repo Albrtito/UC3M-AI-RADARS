@@ -6,7 +6,7 @@ import sys
 import numpy as np
 from Boundaries import Boundaries
 from Map import Map
-from SearchEngine import build_graph, compute_path_cost, h1, h2,h3, path_finding
+from SearchEngine import build_graph, compute_path_cost, h1, h2, path_finding
 from utils.plot import *
 
 
@@ -81,7 +81,7 @@ def main() -> None :
     # Compute the solution
     solution_plan, nodes_expanded = path_finding(
         G=G,
-        heuristic_function=h1,
+        heuristic_function=h2,
         locations=POIs,
         initial_location_index=np.int32(0),
         boundaries=boundaries,
