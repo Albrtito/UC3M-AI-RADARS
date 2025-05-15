@@ -7,7 +7,7 @@ class Location:
         self.latitude  = latitude       # Latitude of the object
         self.longitude = longitude      # Longitude of the object
 
-    def to_numpy(self) -> np.array:
+    def to_numpy(self) -> np.ndarray:
         """ Converts the current Location object into a 2-element Numpy array """
         return np.array([ self.latitude, self.longitude ])
     

@@ -4,7 +4,7 @@ a printd that prints if and only if the DEBUG global variable is enabled.
 """
 
 # Global Variables
-DEBUG = True
+DEBUG = False
 
 
 def print_d(data):

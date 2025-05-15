@@ -99,7 +99,7 @@ def discretize_coords(
     """
     Converts coordiantes from (lat, lon) into (x, y) on all the high level plan
     """
-    locations = np.zeros(shape=(len(high_level_plan),2), dtype=np.int32)
+    locations = np.zeros(shape=(len(high_level_plan), 2), dtype=np.int32)
     lat_step = (boundaries.max_lat - boundaries.min_lat) / (map_height - 1)
     lon_step = (boundaries.max_lon - boundaries.min_lon) / (map_width - 1)
     for i in range(len(high_level_plan)):
@@ -107,7 +107,7 @@ def discretize_coords(
         # Lon goes to Y
         locations[i][0] = int((high_level_plan[i][0] - boundaries.min_lat) / lat_step)
         locations[i][1] = int((high_level_plan[i][1] - boundaries.min_lon) / lon_step)
-        
+
     return locations
 
 
@@ -124,13 +124,15 @@ def path_finding(
     Implementation of the main searching / path finding algorithm, using the astar_path algorithm given in the
     nx library.
     The algorithm works in the following way:
-    - Starts in the initial position and looks for the shortest path from the initial position to another of the positions in the list of locations. When found, sets this new position as the starting position and repeats. All piece-wise paths are saved
+    - Starts in the intial position and uses the ASTAR algorithm to look for a path to the next position on the list of positions. If 
+        no path can be found then it prints the error when the exception rises, else it appends the obtained path to the complete path (final path)
+    - When all paths between the required locations have been searched, the function returns the complete path in string format (the one required for the plotting function)
     """
 
     # Start by turning locations into their (x,y) form, using the discretize_coords function
     xy_locations = np.zeros(shape=(len(locations), 2), dtype=np.int32)
     xy_locations = discretize_coords(locations, boundaries, map_width, map_height)
-        
+
     print_d(f"The xy_locations array holds the values: {xy_locations}")
 
     # Start to look for the path with ASTAR
@@ -145,7 +147,9 @@ def path_finding(
             )
             print_d(f"Path found from {current_location} to {location}: {path}")
         except nx.NetworkXNoPath:
-            print_d(f"No path found from {current_location} to {location} with the given tolerance")
+            print(
+                f"No path found from {current_location} to {location} with the given tolerance"
+            )
             # Exit the program
             exit(-1)
 
@@ -153,10 +157,10 @@ def path_finding(
             G, tuple(current_location), tuple(location), heuristic_function
         )
 
-        # 2. Change the current location to the reached location 
+        # 2. Change the current location to the reached location
         current_location = location
 
-        # 3. Append the path 
+        # 3. Append the path
         solution_plan.append([str(coord) for coord in path])
 
     print_d(f"Solution plan: {solution_plan}")
@@ -168,5 +172,9 @@ def compute_path_cost(G: nx.DiGraph, solution_plan: list) -> np.float32:
     Computes the total cost of the whole planning solution.
     Each movement adds one to the cost
     """
-    cost_value = 1
-    return np.float32(len(solution_plan) * cost_value)
+    operation_cost= 1
+    total_cost = np.float32(0.0)
+    for path in solution_plan:
+        total_cost += len(path) * operation_cost
+
+    return total_cost

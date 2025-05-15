@@ -83,7 +83,7 @@ def main() -> None:
         G=G,
         heuristic_function=h2,
         locations=POIs,
-        initial_location_index=0,
+        initial_location_index=np.int32(0),
         boundaries=boundaries,
         map_width=M.width,
         map_height=M.height,
