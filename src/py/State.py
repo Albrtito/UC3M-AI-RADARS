@@ -36,6 +36,7 @@ class State:
     def __eq__(self, other) -> bool:
         return self.plane_position == other.plane_position
 
+
     @property
     def heuristicCost(self) -> float:
         # Use euler
@@ -43,7 +44,7 @@ class State:
             return self.heuristic_manhattan()
         # Use manhattan
         elif self.heuristicType == 2:
-            return self.heuristic_floydWarshall()
+            return self.heuristic_manhattan_cost_scaled()
         elif self.heuristicType == 3:
             return self.heuristic_euclidean()
         # Use floydWarshall: Not implemented
@@ -130,11 +131,11 @@ class State:
         :return (float): Heuristic value
         """
         heuristicsValues = []
-        for i in range(len(self.planePositions)):
-            initial = self.planePositions[i]
-            final = self.planeGoals[i]
+        for i in range(len(self.plane_goals)):
+            initial = self.plane_position
+            final = self.plane_goals[i]
             heuristicsValues.append(
-                math.sqrt((final[0] - initial[0]) ** 2 + (final[1] - initial[1]) ** 2)
+                np.sqrt((final[0] - initial) ** 2 + (final[1] - initial) ** 2)
             )
         return max(heuristicsValues)
 
@@ -147,235 +148,13 @@ class State:
         if self.fwCosts == None:
             self.fwCosts = self.algorithm_floydWarshall()
         heuristicValues = []
-        for i in range(len(self.planePositions)):
-            initial = self.planePositions[i]
-            final = self.planeGoals[i]
+        for i in range(len(self.plane_goals)):
+            initial = self.plane_position
+            final = self.plane_goals[i]
             heuristicCost = self.fwCosts[initial][final]
             heuristicValues.append(heuristicCost)
 
         return max(heuristicValues)
-
-    def algorithm_floydWarshall(
-        self,
-    ) -> dict[tuple[int, int], dict[tuple[int, int], float]]:
-        """
-        Compute the Floyd-Warshall algorithm with wall detection.
-        Nodes are considered adjacent only if they are Manhattan distance 1 apart
-        and at least one of them is not a wall ("G").
-        :return (dict): Dictionary mapping each position to its minimum distances to all other positions
-        """
-        # Get the map from the instance
-        map = self.map
-
-        # Initialize the mapping from node indices to their positions
-        n = 1
-        nodes = {}  # Maps index to position
-        reverse_nodes = {}  # Maps position to index (needed for result conversion)
-        for i in map.keys():
-            nodes[n] = i
-            reverse_nodes[i] = n
-            n += 1
-        num_nodes = len(nodes)
-
-        # Initialize the distance matrix with infinities
-        distanceArray = [[float("inf")] * num_nodes for _ in range(num_nodes)]
-
-        # Distance from a node to itself is 0
-        for i in range(num_nodes):
-            distanceArray[i][i] = 0
-
-        # Populate the adjacency matrix
-        for i in range(1, num_nodes + 1):
-            for j in range(1, num_nodes + 1):
-                if i != j:
-                    pos_i = nodes[i]
-                    pos_j = nodes[j]
-
-                    # Check if positions are adjacent (Manhattan distance of 1)
-                    manhattan_dist = abs(pos_i[0] - pos_j[0]) + abs(pos_i[1] - pos_j[1])
-
-                    if manhattan_dist == 1:
-                        # Check if at least one position is not a wall
-                        if map[pos_i] != "G" and map[pos_j] != "G":
-                            distanceArray[i - 1][j - 1] = 1
-                        else:
-                            distanceArray[i - 1][j - 1] = float("inf")
-
-        # Floyd-Warshall algorithm
-        for k in range(num_nodes):
-            for i in range(num_nodes):
-                for j in range(num_nodes):
-                    # Update the distance to the minimum via an intermediate node
-                    distanceArray[i][j] = min(
-                        distanceArray[i][j], distanceArray[i][k] + distanceArray[k][j]
-                    )
-
-        # Convert the result matrix to a dictionary
-        result_dict = {}
-        for i in range(1, num_nodes + 1):
-            pos_i = nodes[i]
-            # Create inner dictionary for each position
-            distances_from_i = {}
-            for j in range(1, num_nodes + 1):
-                pos_j = nodes[j]
-                distances_from_i[pos_j] = distanceArray[i - 1][j - 1]
-            result_dict[pos_i] = distances_from_i
-
-        return result_dict
-
-    def condition_free(self, values: list[tuple[int, int]]) -> bool:
-        """
-        Check that all the positions in the list are
-        free positions in the map.
-        All positions are free if they are not "G" in the map.
-
-        :param Values: List of tuples with the positions to check
-        """
-        for elem in values:
-            if self.map[elem] == "G":
-                return False
-
-        return True
-
-    def condition_in_map(self, values: list[tuple[int, int]]) -> bool:
-        """
-        Check that all the positions in the list are
-        inside the map.
-        :param Values: List of tuples with the positions to check
-        """
-        for elem in values:
-            if not self.map.get(elem):
-                return False
-        return True
-
-    def condition_same_position(self, values: list[tuple[int, int]]) -> bool:
-        """
-        Check that no two values in the list are the same.
-        :param Values: List of tuples with the positions to check
-        """
-        for i in range(len(values)):
-            for j in range(i + 1, len(values)):
-                if values[i] == values[j]:
-
-                    return False
-        return True
-
-    def condition_cross(self, values: list[tuple[int, int]]) -> bool:
-        """
-        Check that no two planes cross each other.Compare the given list
-        of values with the current positions of the planes.
-        :param Values: List of tuples with the positions to
-        """
-
-        for i in range(len(values)):
-            for j in range(len(self.planePositions)):
-                if i == j:
-                    continue
-                if (
-                    self.planePositions[j] == values[i]
-                    and values[j] == self.planePositions[i]
-                ):
-                    return False
-
-        return True
-
-    def condition_wait(self, values: list[tuple[int, int]]) -> bool:
-        """
-        Check that a plane can only wiat if the map position is not "A"
-        :param Values: List of tuples with the positions to check
-        """
-        for i in range(len(values)):
-            if (values[i] == self.planePositions[i]) and (self.map[values[i]] == "A"):
-                return False
-        return True
-
-    def get_child_cost(self, values: list[tuple[int, int]]) -> float:
-        """
-        Given a list of moves of a plane, get the cost of the state change.
-        :param Values: List of tuples with the moves of the planes
-        """
-        totalCost = 0
-        for elem in values:
-            if elem == (0, 0):
-                totalCost += self.waitCost
-            else:
-                totalCost += self.moveCost
-
-        return totalCost / len(values)
-
-    def operator_move(
-        self,
-    ) -> tuple[list[list[tuple[int, int]]], list[list[tuple[int, int]]]]:
-        """
-        Compute the Cartesian product of a set with itself n times,then
-        apply the conditions to get the valid combinations.
-
-        :param input_set: Set of tuples, where each tuple contains two integers
-        :param n: Number of times to compute the product
-        :return (list): List of lists with the valid combinations (childPositionValues)
-        :return (list): List of lists with the moves to get the valid combinations (childMoveValues)
-
-        Preconditions:
-        * Adjacency: The next position will be adjacent to the current one
-        * Free: Checked usig condition_free()
-        * Same Position: Checked using condition_same_position()
-        * Cross: Checked using condition_cross()
-        * Wait: Checked using condition_wait()
-
-        """
-        input_set = self.possibleMoves
-        n = len(self.planePositions)
-        # Initialize result list
-        result = ([], [])
-
-        if n <= 0:
-            print_d("ERROR -- Plane positions is empty")
-            return result
-
-        # Convert set to sorted list for consistent ordering
-        # For tuples, we sort based on both elements of the tuple
-        elements = sorted(list(input_set), key=lambda x: (x[0], x[1]))
-        setSize = len(elements)
-
-        # Total number of combinations remains the same
-        # If we have k tuples and select n times, we get k^n combinations
-        totalCombinations = setSize**n
-
-        # Generate each combination
-        for i in range(totalCombinations):
-            # Current combination
-            moves = []
-            # List of tuples with the new positions
-            positions = []
-            temp = i
-
-            # The base conversion process remains the same
-            # But now each selected element is a tuple instead of a number
-            for _ in range(n):
-                moves.append(elements[temp % setSize])
-                temp //= setSize
-
-            # Apply moves to current position
-            for i in range(len(moves)):
-                newPosition = (
-                    moves[i][0] + self.planePositions[i][0],
-                    moves[i][1] + self.planePositions[i][1],
-                )
-                positions.append(newPosition)
-
-            # Check conditions:
-            if self.condition_in_map(positions):
-                conditions = [
-                    self.condition_free(positions),
-                    self.condition_same_position(positions),
-                    self.condition_cross(positions),
-                    self.condition_wait(positions),
-                ]
-                if all(conditions):
-                    result[0].append(positions)
-                    result[1].append(moves)
-
-        return result
 
     def expand_state(self) -> list["State"]:
         """
