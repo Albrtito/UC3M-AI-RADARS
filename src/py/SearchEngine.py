@@ -129,49 +129,35 @@ def path_finding(
 
     # Start by turning locations into their (x,y) form, using the discretize_coords function
     xy_locations = np.zeros(shape=(len(locations), 2), dtype=np.int32)
-    for i in range(len(locations)):
-        xy_locations[i] = tuple(
-            discretize_coords(locations[i], boundaries, map_width, map_height)
-        )
+    xy_locations = discretize_coords(locations, boundaries, map_width, map_height)
+        
     print_d(f"The xy_locations array holds the values: {xy_locations}")
 
     # Start to look for the path with ASTAR
     current_location = tuple(xy_locations[initial_location_index])
     solution_plan = []
-    while len(xy_locations) > 1:
-        # 1. Delete the current location the plane's at
-        print_d(f"Current location is:{current_location}")
-        temp_index = np.where(xy_locations == current_location)[0][0]
-        xy_locations = np.delete(xy_locations, temp_index, axis=0)
-
-        # 2. Find the shortest path from the current position to the next one and save that next location that path takes us to(next location)
-        path_length = float("+inf")
-        piece_path = []
-        next_location = current_location
-        is_path = False
-        print_d(f"Len of the locations array: {len(locations)}")
-        for location in xy_locations:
-            print_d(f"Now looking for a path to location {location} in {locations}")
-            try:
-                temp_path = nx.astar_path(
-                    G, tuple(current_location), tuple(location), heuristic_function
-                )
-                is_path = True
-            except nx.NetworkXNoPath:
-                print_d(f"No path found from {current_location} to {location}")
-
-            temp_path_len = nx.astar_path_length(
+    for location in xy_locations:
+        # 1. Search for a path from the current location to the next one
+        print_d(f"Now looking for a path to location {location} in {xy_locations}")
+        try:
+            path = nx.astar_path(
                 G, tuple(current_location), tuple(location), heuristic_function
             )
-            if temp_path_len < path_length:
-                piece_path = temp_path
-                path_length = temp_path_len
-                next_location = location
-        print_d(f"Path found from {current_location} to {next_location}: {piece_path}")
+            print_d(f"Path found from {current_location} to {location}: {path}")
+        except nx.NetworkXNoPath:
+            print_d(f"No path found from {current_location} to {location} with the given tolerance")
+            # Exit the program
+            exit(-1)
 
-        # 3. Set the current location to the next_location and actualise the solution_plan
-        current_location = next_location
-        solution_plan.append([str(coord) for coord in piece_path])
+        path_len = nx.astar_path_length(
+            G, tuple(current_location), tuple(location), heuristic_function
+        )
+
+        # 2. Change the current location to the reached location 
+        current_location = location
+
+        # 3. Append the path 
+        solution_plan.append([str(coord) for coord in path])
 
     print_d(f"Solution plan: {solution_plan}")
     return solution_plan, NODES_EXPANDED
