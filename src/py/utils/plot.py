@@ -1,10 +1,14 @@
 """
-    All plotting functions are grouped here 
+All plotting functions are grouped here
 """
 
-from Boundaries import Boundaries
 import matplotlib.pyplot as plt
 import numpy as np
+from Boundaries import Boundaries
+
+# Variable for toggling on and off the plots, so that during debbugging there is no problem with showing them
+PLOT = False
+
 
 def plot_radar_locations(boundaries: Boundaries, radar_locations: np.ndarray) -> None:
     """Auxiliary function for plotting the radar locations"""
@@ -34,7 +38,8 @@ def plot_radar_locations(boundaries: Boundaries, radar_locations: np.ndarray) ->
     plt.ylabel("Latitude")
     plt.grid(True)
     plt.legend()
-    plt.show()
+    if PLOT:
+        plt.show()
     return
 
 
@@ -44,10 +49,14 @@ def plot_detection_fields(detection_map: np.ndarray, bicubic: bool = True) -> No
     plt.title("Radar detection fields")
     im = plt.imshow(
         # Added the origin=lower property so that it plots similar to the first graph
-        X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None, origin ="lower"
+        X=detection_map,
+        cmap="Greens",
+        interpolation="bicubic" if bicubic else None,
+        origin="lower",
     )
     plt.colorbar(im, label="Detection values")
-    plt.show()
+    if PLOT:
+        plt.show()
     return
 
 
@@ -74,10 +83,9 @@ def plot_solution(
         zorder=2,
     )
     im = plt.imshow(
-        X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None
+        X=detection_map, cmap="Greens", interpolation="bicubic" if bicubic else None, origin = "lower"
     )
     plt.colorbar(im, label="Detection values")
     plt.legend()
     plt.show()
     return
-
