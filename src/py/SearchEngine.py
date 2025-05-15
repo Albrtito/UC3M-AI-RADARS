@@ -21,19 +21,8 @@ def h1(current_node, objective_node) -> np.float32:
     return h
 
 
+
 def h2(current_node, objective_node) -> np.float32:
-    """Second heuristic to implement"""
-    global NODES_EXPANDED
-    cost_value = 1
-    h = (
-        abs(objective_node[0] - current_node[0])
-        + abs(objective_node[1] - current_node[1]) * cost_value
-    )
-    NODES_EXPANDED += 1
-    return h
-
-
-def h3(current_node, objective_node) -> np.float32:
     """
     Third heuristic implemented, an euclidean distance between the current and objective node
     """
